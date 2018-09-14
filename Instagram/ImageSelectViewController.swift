@@ -12,11 +12,12 @@ import CLImageEditor
 class ImageSelectViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CLImageEditorDelegate {
     //ライブラリボタンをタップした時
     @IBAction func handleLibraryButton(_ sender: Any) {
+        print("デバッグ: ライブラリを開きます")
         //ライブラリ(カメラロール)を指定してピッカーを開く
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary){
             let pickerController = UIImagePickerController()
             pickerController.delegate = self
-            pickerController.sourceType = .camera
+            pickerController.sourceType = .photoLibrary
             self.present(pickerController, animated: true, completion: nil)
         }
     }
@@ -59,6 +60,7 @@ class ImageSelectViewController: UIViewController, UIImagePickerControllerDelega
     func imageEditor(_ editor: CLImageEditor!, didFinishEditingWith image: UIImage!) {
         // 投稿の画面を開く
         let postViewController = self.storyboard?.instantiateViewController(withIdentifier: "Post") as! PostViewController
+        //PostViewControllerのimageにセット
         postViewController.image = image!
         editor.present(postViewController, animated: true, completion: nil)
     }

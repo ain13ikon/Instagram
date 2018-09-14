@@ -73,8 +73,9 @@ class ViewController: UIViewController {
         tabBarController.setView(homeViewController, at: 0)
         tabBarController.setView(settingViewController, at: 2)
         
-        // 真ん中のタブはボタンとして扱う
+        //選択された時の色を設定
         tabBarController.highlightButton(at: 1)
+        // 真ん中のタブはボタンとして扱う↓
         tabBarController.setAction({
             // ボタンが押されたらImageViewControllerをモーダルで表示する
             let imageViewController = self.storyboard?.instantiateViewController(withIdentifier: "ImageSelect")
