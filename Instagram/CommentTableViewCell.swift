@@ -16,7 +16,9 @@ class CommentTableViewCell: UITableViewCell {
     func setPostCellData(_ postDataComment: [String: String]){
         print("デバッグ：　コメントセルを作成")
         self.commentLabel.text = postDataComment["comment"]!
-        self.commenterLabel.text = postDataComment["name"]!
+        self.commenterLabel.text = "by " + postDataComment["name"]!
+        print(self.commentLabel.text!)
+        print(self.commenterLabel.text!)
     }
     
     override func awakeFromNib() {

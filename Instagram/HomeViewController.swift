@@ -13,7 +13,8 @@ import FirebaseDatabase
 
 class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var tableView: UITableView!
-    
+    var postDataComments: [[String: String]] = []
+
     //表示するデータ(PostDataクラス)を配列で保持
     var postArray: [PostData] = []
     
@@ -22,22 +23,70 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     //データ（セル）の数
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return postArray.count
+        
+        if tableView === self.tableView{
+            //tableViewのセル数//
+            return postArray.count
+        }else{
+            //commentTableViewのセル数//
+            print("コメントは\(postDataComments.count)件です")
+            return postDataComments.count
+        }
     }
     
     //表示するセルの設定
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // セルを取得してデータを設定する
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostTableViewCell
-        cell.setPostData(postArray[indexPath.row])
-        
-        // いいねボタンのアクションをソースコードで設定する
-        cell.likeButton.addTarget(self, action:#selector(handleLikeButton(_:forEvent:)), for: .touchUpInside)
-        
-        //コメントボタンのアクションをソースコードで設定する
-        cell.commentButton.addTarget(self, action: #selector(handleCommentButton(_: forEvent:)), for: .touchUpInside)
+        if tableView === self.tableView{
+            //tableViewセルの設定//
+            print("デバッグ：　tableViewセルを設定します")
+            // セルを取得してデータを設定する
+            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostTableViewCell
+            //セルの作成
+            cell.setPostData(postArray[indexPath.row])
+            //コメント内容の取得
+            //postDataComments = postArray[indexPath.row].comments
+            postDataComments = [
+                    ["name": "花子",  "comment": "コメント１１１１１１１１１１１１１１１１１１１１１"],
+                    ["name": "太郎",  "comment": "コメント２２２２２２２２２２２２２２２２２２２２２２"]
+            ]
+            // いいねボタンのアクションをソースコードで設定する
+            cell.likeButton.addTarget(self, action:#selector(handleLikeButton(_:forEvent:)), for: .touchUpInside)
+            
+            //コメントボタンのアクションをソースコードで設定する
+            cell.commentButton.addTarget(self, action: #selector(handleCommentButton(_: forEvent:)), for: .touchUpInside)
+            
+            //commentTableViewについての設定
+            //セル内のcommentTableViewのデリゲートを設定
+            cell.commentTableView.delegate = self
+            cell.commentTableView.dataSource = self
+            
+            //テーブルセルのタップを無効にする
+            cell.commentTableView.allowsSelection = false
+            
+            //テーブルビューの内容を取得
+            let nib = UINib(nibName: "CommentTableViewCell", bundle: nil)
+            cell.commentTableView.register(nib, forCellReuseIdentifier: "CommentCell")
+            
+            // テーブル行の高さをAutoLayoutで自動調整する
+            //cell.commentTableView.rowHeight = UITableViewAutomaticDimension
+            // テーブル行の高さの概算値を設定しておく
+            // 高さ概算値 = 「縦横比1:1のUIImageViewの高さ(=画面幅)」+「いいねボタン、キャプションラベル、その他余白の高さの合計概算(=100pt)」
+            //cell.commentTableView.estimatedRowHeight = 100
+            
+            //cell.commentTableView.reloadData()
 
-        return cell
+            return cell
+            
+        }else{
+            //commentTableViewセルの設定//
+            print("デバッグ：　commentTableViewセルを設定します")
+            print("デバッグ：　コメントテーブルビュー")
+            // セルを取得してデータを設定する
+            let cell = tableView.dequeueReusableCell(withIdentifier: "CommentCell", for: indexPath) as! CommentTableViewCell
+            print("デバッグ：　setPostCellData()します")
+            cell.setPostCellData(postDataComments[indexPath.row])
+            return cell
+        }
     }
     
     //コメントボタンがタップされた時に呼ばれるメソッド
@@ -50,32 +99,41 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
             let indexPath = tableView.indexPathForRow(at: point)
             
             //print(commentLabel.text)
+            //print(UITableViewCell(indexPath!.row).commentLabel.text)
             
             // 配列からタップされたインデックスのデータを取り出す
             let postData = postArray[indexPath!.row]
             
-            //*コメント内容とコメント者を取得する
-            let comment = "コメント"
-            //IDからラベルを取得する
-            let commentLabel = 0
-            
-            //let comment2 = commentLabel.restorationIdentifier("comment" + postData.id!)
-            let commenter = user.displayName!
-            
-            print("デバッグ：　\(comment) by\(commenter)")
-            
-            
-            
-            //*コメントをデータベースに保存する
-            //**投稿データの保存場所を取得する
-//            let postRef = Database.database().reference().child(Const.PostPath).child(postData.id!)
-            //**投稿データのコメントに追加する
-//            let newComment = ["comment": comment, "commenter": commenter]
-//            postData.comments.insert(newComment, at: 0)
-            //**投稿データをアップデートする
-//            postRef.updateChildValues(["comments": postData.comments])
-//            print(postData.comments)
- 
+            //*コメント内容を取得する
+            //タップされたボタンのセルのインデックスからCellを取り出す
+            if let cell = tableView.cellForRow(at: indexPath!) as? PostTableViewCell{
+                if let commentKari = cell.commentLabel.text {
+                    if commentKari != ""{
+                        print("デバッグ：　コメントが入力されています")
+                        let comment = commentKari
+                        
+                        //コメント者を取得する
+                        let commenter = user.displayName!
+                        print("デバッグ：　\(comment) by\(commenter)")
+                        
+                        //*コメントをデータベースに保存する
+                        //**投稿データの保存場所を取得する
+                        //            let postRef = Database.database().reference().child(Const.PostPath).child(postData.id!)
+                        //**投稿データのコメントに追加する
+                        //            let newComment = ["comment": comment, "commenter": commenter]
+                        //            postData.comments.insert(newComment, at: 0)
+                        //**投稿データをアップデートする
+                        //            postRef.updateChildValues(["comments": postData.comments])
+                        //            print(postData.comments)
+
+                    }else{
+                        print("デバッグ：　コメントが入力されていません")
+                    }
+                }
+                //入力欄をデフォルトに戻す
+                cell.commentLabel.text = ""
+                cell.commentLabel.placeholder = "コメントを追加"
+            }
 
  
         }

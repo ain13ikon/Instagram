@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PostTableViewCell: UITableViewCell, UITableViewDelegate, UITableViewDataSource {
+class PostTableViewCell: UITableViewCell {
     
     @IBOutlet weak var postImageView: UIImageView!
     @IBOutlet weak var likeButton: UIButton!
@@ -36,12 +36,14 @@ class PostTableViewCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
     //投稿データをセットする
     func setPostData(_ postData: PostData){
         print("デバッグ：　setPostData()します")
+        /*
         print("途中：　postDatacommentsのデータは仮です")
         //self.postDatacomments = postData.comments
         self.postDatacomments = [
             ["name": "花子",  "comment": "コメント１"],
             ["name": "太郎",  "comment": "コメント２"]
         ]
+         */
         //画像
         self.postImageView.image = postData.image
         
@@ -68,11 +70,13 @@ class PostTableViewCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
             self.likeButton.setImage(buttonImage, for: .normal)
         }
         
+        /*
         //コメントラベルにidentifierを設定
         let commentIdentifier = "comment" + postData.id!
         self.commentLabel.accessibilityIdentifier = commentIdentifier
+        */
         
-        
+        /*
         //コメントの表示内容を指定する//
         //複数人のコメント→新たにテーブルビューを作って実装
         //コメント＆投稿者で一つのセル
@@ -92,9 +96,11 @@ class PostTableViewCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
         // 高さ概算値 = 「縦横比1:1のUIImageViewの高さ(=画面幅)」+「いいねボタン、キャプションラベル、その他余白の高さの合計概算(=100pt)」
         commentTableView.estimatedRowHeight = 100
         
-        self.commentTableView.reloadData()
+        //self.commentTableView.reloadData()
+        */
     }
     
+    /*
     //コメントテーブルビューのセル数を返す
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print("コメントは\(postDatacomments.count)件です")
@@ -110,6 +116,7 @@ class PostTableViewCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
         
         return cell
     }
+    */
     
     /*
     override func viewDidLoad() {
