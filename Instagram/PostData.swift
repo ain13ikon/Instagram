@@ -19,14 +19,15 @@ class PostData: NSObject {
     var date: Date?
     var likes: [String] = []
     var isLiked: Bool = false
+    var comments: [[String: String]] = []   //辞書型にすると複数に対応
     
     init(snapshot: DataSnapshot, myId: String){
         self.id = snapshot.key
         
-        let valueDictionary = snapshot.value as! [String: Any]  //メモ：辞書型でデータを受け取っている？
+        let valueDictionary = snapshot.value as! [String: Any]  //メモ：辞書型でデータを受け取っている
         
-        imageString = valueDictionary["image"] as? String
-        image = UIImage(data: Data(base64Encoded: imageString!, options: .ignoreUnknownCharacters)!)
+        self.imageString = valueDictionary["image"] as? String
+        self.image = UIImage(data: Data(base64Encoded: imageString!, options: .ignoreUnknownCharacters)!)
         
         self.name = valueDictionary["name"] as? String
         
@@ -45,5 +46,10 @@ class PostData: NSObject {
                 break
             }
         }
+        
+        if let comments = valueDictionary["comments"] as? [[String: String]]{
+            self.comments = comments
+        }
     }
+    
 }

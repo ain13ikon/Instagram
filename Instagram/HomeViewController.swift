@@ -31,14 +31,58 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostTableViewCell
         cell.setPostData(postArray[indexPath.row])
         
-        // セル内のボタンのアクションをソースコードで設定する
-        cell.likeButton.addTarget(self, action:#selector(handleButton(_:forEvent:)), for: .touchUpInside)
+        // いいねボタンのアクションをソースコードで設定する
+        cell.likeButton.addTarget(self, action:#selector(handleLikeButton(_:forEvent:)), for: .touchUpInside)
+        
+        //コメントボタンのアクションをソースコードで設定する
+        cell.commentButton.addTarget(self, action: #selector(handleCommentButton(_: forEvent:)), for: .touchUpInside)
 
         return cell
     }
     
-    // セル内のボタンがタップされた時に呼ばれるメソッド
-    @objc func handleButton(_ sender: UIButton, forEvent event: UIEvent) {
+    //コメントボタンがタップされた時に呼ばれるメソッド
+    @objc func handleCommentButton(_ sender: UIButton, forEvent event: UIEvent){
+        print("DEBUG_PRINT: コメントボタンがタップされました。")
+        if let user = Auth.auth().currentUser {
+            // タップされたセルのインデックスを求める
+            let touch = event.allTouches?.first
+            let point = touch!.location(in: self.tableView)
+            let indexPath = tableView.indexPathForRow(at: point)
+            
+            //print(commentLabel.text)
+            
+            // 配列からタップされたインデックスのデータを取り出す
+            let postData = postArray[indexPath!.row]
+            
+            //*コメント内容とコメント者を取得する
+            let comment = "コメント"
+            //IDからラベルを取得する
+            let commentLabel = 0
+            
+            //let comment2 = commentLabel.restorationIdentifier("comment" + postData.id!)
+            let commenter = user.displayName!
+            
+            print("デバッグ：　\(comment) by\(commenter)")
+            
+            
+            
+            //*コメントをデータベースに保存する
+            //**投稿データの保存場所を取得する
+//            let postRef = Database.database().reference().child(Const.PostPath).child(postData.id!)
+            //**投稿データのコメントに追加する
+//            let newComment = ["comment": comment, "commenter": commenter]
+//            postData.comments.insert(newComment, at: 0)
+            //**投稿データをアップデートする
+//            postRef.updateChildValues(["comments": postData.comments])
+//            print(postData.comments)
+ 
+
+ 
+        }
+    }
+    
+    // いいねボタンがタップされた時に呼ばれるメソッド
+    @objc func handleLikeButton(_ sender: UIButton, forEvent event: UIEvent) {
         print("DEBUG_PRINT: likeボタンがタップされました。")
         
         // タップされたセルのインデックスを求める
@@ -54,7 +98,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
             if postData.isLiked {
                 //いいねをしていた場合//
                 // すでにいいねをしていた場合はいいねを解除するためIDを取り除く
-                var index = -1
+                var index = -1  //０、整数以外。removeしないため
                 for likeId in postData.likes {
                     if likeId == uid {
                         // 削除するためにインデックスを保持しておく
@@ -103,13 +147,14 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         super.viewWillAppear(animated)
         print("デバッグ：　viewWillAppear")
         
-        if Auth.auth().currentUser! != nil {
+        if Auth.auth().currentUser != nil {
             //ログインしている場合//
             
             if self.observingF == false{
                 //要素が追加されたらpostArrayに追加してTableViewを再表示する
                 let postsRef = Database.database().reference().child(Const.PostPath)
-                
+                //↑全部のデータ
+                //↓１つずつ読み込んでpostDataを作成
                 postsRef.observe(.childAdded, with: {snapshot in
                     print("デバッグ：　.childAddedイベントが発生しました")
                     
