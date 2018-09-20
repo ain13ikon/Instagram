@@ -10,15 +10,15 @@ import UIKit
 
 class CommentTableViewCell: UITableViewCell {
     @IBOutlet weak var commentLabel: UILabel!
-    @IBOutlet weak var commenterLabel: UILabel!
+    //@IBOutlet weak var commenterLabel: UILabel!
     
     //コメントテーブルビューの作成
     func setPostCellData(_ postDataComment: [String: String]){
         print("デバッグ：　コメントセルを作成")
-        self.commentLabel.text = postDataComment["comment"]!
-        self.commenterLabel.text = "by " + postDataComment["name"]!
+        self.commentLabel.text = postDataComment["comment"]! + "\t（from: " + postDataComment["name"]! + "）"
+        //self.commenterLabel.text = "\t（by " + postDataComment["name"]! + "）"
         print(self.commentLabel.text!)
-        print(self.commenterLabel.text!)
+        //print(self.commenterLabel.text!)
     }
     
     override func awakeFromNib() {

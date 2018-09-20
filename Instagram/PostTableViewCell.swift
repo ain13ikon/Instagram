@@ -20,6 +20,9 @@ class PostTableViewCell: UITableViewCell {
     
     @IBOutlet weak var commentLabel: UITextField!
     
+    @IBOutlet weak var commentTableViewConstraintHeight: NSLayoutConstraint!
+    
+    
     var postDatacomments: [[String: String]] = []
     
     override func awakeFromNib() {

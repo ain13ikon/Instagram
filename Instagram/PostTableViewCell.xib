@@ -108,6 +108,7 @@
                 <outlet property="commentButton" destination="Nze-Kg-bIf" id="VkE-Kr-vwb"/>
                 <outlet property="commentLabel" destination="SYb-dN-a7N" id="g82-Fy-REt"/>
                 <outlet property="commentTableView" destination="aRN-sX-idD" id="Xw9-HR-06H"/>
+                <outlet property="commentTableViewConstraintHeight" destination="tmI-AS-Jnc" id="MoV-e1-grm"/>
                 <outlet property="dateLabel" destination="Tf8-dm-uTg" id="KUm-Cp-yOf"/>
                 <outlet property="likeButton" destination="LnY-TR-zd6" id="Y1b-LP-nOd"/>
                 <outlet property="likeLabel" destination="2mc-4t-98U" id="h3v-2C-OjD"/>

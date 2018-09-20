@@ -13,6 +13,9 @@ import FirebaseDatabase
 
 class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var tableView: UITableView!
+    
+    
+    
     var postDataComments: [[String: String]] = []
 
     //表示するデータ(PostDataクラス)を配列で保持
@@ -43,12 +46,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
             let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostTableViewCell
             //セルの作成
             cell.setPostData(postArray[indexPath.row])
-            //コメント内容の取得
-            //postDataComments = postArray[indexPath.row].comments
-            postDataComments = [
-                    ["name": "花子",  "comment": "コメント１１１１１１１１１１１１１１１１１１１１１"],
-                    ["name": "太郎",  "comment": "コメント２２２２２２２２２２２２２２２２２２２２２２"]
-            ]
+            
             // いいねボタンのアクションをソースコードで設定する
             cell.likeButton.addTarget(self, action:#selector(handleLikeButton(_:forEvent:)), for: .touchUpInside)
             
@@ -67,14 +65,24 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
             let nib = UINib(nibName: "CommentTableViewCell", bundle: nil)
             cell.commentTableView.register(nib, forCellReuseIdentifier: "CommentCell")
             
-            // テーブル行の高さをAutoLayoutで自動調整する
-            //cell.commentTableView.rowHeight = UITableViewAutomaticDimension
-            // テーブル行の高さの概算値を設定しておく
-            // 高さ概算値 = 「縦横比1:1のUIImageViewの高さ(=画面幅)」+「いいねボタン、キャプションラベル、その他余白の高さの合計概算(=100pt)」
-            //cell.commentTableView.estimatedRowHeight = 100
+            //コメント内容の取得
+            postDataComments = postArray[indexPath.row].comments
+            print("デバッグ：　コメントを取得")
             
-            //cell.commentTableView.reloadData()
-
+            /*
+            postDataComments = [
+                 ["name": "花子",  "comment": "いいですねねねねねねねねねねねねねねねねねね！"],
+                 ["name": "太郎",  "comment": "すごいー"],
+                 ["name": "ごんたぬきのたぬき",  "comment": "あああああああああああああああ"]
+            ]*/
+            
+            //コメント一覧の高さをコメント数によって調整する
+            var commentTableHeight = CGFloat(postDataComments.count * 50)
+            if commentTableHeight > 150 {
+                commentTableHeight = 150
+            }
+            cell.commentTableViewConstraintHeight.constant = commentTableHeight
+            
             return cell
             
         }else{
