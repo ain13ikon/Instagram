@@ -14,46 +14,49 @@ import FirebaseDatabase
 class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var tableView: UITableView!
     
-    
-    
-    var postDataComments: [[String: String]] = []
-
     //表示するデータ(PostDataクラス)を配列で保持
     var postArray: [PostData] = []
-    
+    //コメントを辞書配列で保持
+    var postDataComments: [[String: String]] = []
+
     //DatabaseのobserveEventの登録状態を表す
     var observingF = false
     
-    //データ（セル）の数
+    //tableViewのセル数を返す
+    //２つのtableViewのプロトコルを兼ねているのでifで条件わけさせる
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         if tableView === self.tableView{
             //tableViewのセル数//
+            print("デバッグ：　tableViewのセル数を返します：\(postArray.count)件")
             return postArray.count
         }else{
             //commentTableViewのセル数//
-            print("コメントは\(postDataComments.count)件です")
+            print("デバッグ：　commentTableViewのセル数を返します。コメント：\(postDataComments.count)件")
             return postDataComments.count
         }
     }
     
-    //表示するセルの設定
+    //表示するセルの設定をする
+    //２つのtableViewのプロトコルを兼ねているのでifで条件わけさせる
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if tableView === self.tableView{
             //tableViewセルの設定//
-            print("デバッグ：　tableViewセルを設定します")
-            // セルを取得してデータを設定する
-            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostTableViewCell
-            //セルの作成
-            cell.setPostData(postArray[indexPath.row])
             
+            print("デバッグ：　tableViewセルを設定します")
+            // PostTableViewCellで作成しているセルを取得してデータを設定する
+            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostTableViewCell
+            print("親セルのインデックスは \(indexPath.row)")
+            cell.setPostData(postArray[indexPath.row])  //セルの中身を作成
+
             // いいねボタンのアクションをソースコードで設定する
             cell.likeButton.addTarget(self, action:#selector(handleLikeButton(_:forEvent:)), for: .touchUpInside)
             
             //コメントボタンのアクションをソースコードで設定する
             cell.commentButton.addTarget(self, action: #selector(handleCommentButton(_: forEvent:)), for: .touchUpInside)
             
-            //commentTableViewについての設定
+            
+            
+            //*commentTableViewについての設定
             //セル内のcommentTableViewのデリゲートを設定
             cell.commentTableView.delegate = self
             cell.commentTableView.dataSource = self
@@ -69,33 +72,49 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
             postDataComments = postArray[indexPath.row].comments
             print("デバッグ：　コメントを取得")
             
-            /*
-            postDataComments = [
-                 ["name": "花子",  "comment": "いいですねねねねねねねねねねねねねねねねねね！"],
-                 ["name": "太郎",  "comment": "すごいー"],
-                 ["name": "ごんたぬきのたぬき",  "comment": "あああああああああああああああ"]
-            ]*/
-            
             //コメント一覧の高さをコメント数によって調整する
             var commentTableHeight = CGFloat(postDataComments.count * 50)
             if commentTableHeight > 150 {
                 commentTableHeight = 150
             }
             cell.commentTableViewConstraintHeight.constant = commentTableHeight
+            cell.commentTableView.reloadData()
+            print("コメントをリロードします")
             
             return cell
             
         }else{
             //commentTableViewセルの設定//
             print("デバッグ：　commentTableViewセルを設定します")
-            print("デバッグ：　コメントテーブルビュー")
             // セルを取得してデータを設定する
             let cell = tableView.dequeueReusableCell(withIdentifier: "CommentCell", for: indexPath) as! CommentTableViewCell
             print("デバッグ：　setPostCellData()します")
-            cell.setPostCellData(postDataComments[indexPath.row])
+            print("コメントのインデックスは \(indexPath.row)")
+            
+            var indexPathRow = indexPath.row
+            
+            print("postArrayは\(postArray)")
+            print("postDataCommentsは\(postDataComments)")
+            
+            /*
+            if indexPathRow < 0 {
+                indexPathRow = 0
+            }else if indexPathRow > postDataComments.count {
+                indexPathRow = postDataComments.count
+            }
+            */
+            
+            cell.setPostCellData(postDataComments[indexPathRow])   //子をスクロールすると止まる
+            //Index out of range: スクロールがindex外に行ってしまっている？
+            //→indexPathが親のデータ？→ではなさそう
+            //*スクロール時にpostDataCommentsが空っぽ→代入を適切に行う
             return cell
         }
     }
+    
+    /*func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        print("スクロールされました")
+    }*/
     
     //コメントボタンがタップされた時に呼ばれるメソッド
     @objc func handleCommentButton(_ sender: UIButton, forEvent event: UIEvent){
@@ -126,13 +145,13 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
                         
                         //*コメントをデータベースに保存する
                         //**投稿データの保存場所を取得する
-                        //            let postRef = Database.database().reference().child(Const.PostPath).child(postData.id!)
+                        let postRef = Database.database().reference().child(Const.PostPath).child(postData.id!)
                         //**投稿データのコメントに追加する
-                        //            let newComment = ["comment": comment, "commenter": commenter]
-                        //            postData.comments.insert(newComment, at: 0)
+                        let newComment = ["comment": comment, "commenter": commenter]
+                        postData.comments.insert(newComment, at: 0)
                         //**投稿データをアップデートする
-                        //            postRef.updateChildValues(["comments": postData.comments])
-                        //            print(postData.comments)
+                        postRef.updateChildValues(["comments": postData.comments])
+                        print(postData.comments)
 
                     }else{
                         print("デバッグ：　コメントが入力されていません")
@@ -231,6 +250,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
                         self.postArray.insert(postData, at:0)   //データ配列の一番最初に追加
                         
                         //TableViewを再表示する
+                        print("デバッグ：　テーブルビューをリロードします")
                         self.tableView.reloadData()
                     }
                 })
@@ -260,6 +280,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
                         self.postArray.insert(postData, at: index)
                         
                         // TableViewを再表示する
+                        print("デバッグ：　テーブルビューをリロードします")
                         self.tableView.reloadData()
                     }
                 })
