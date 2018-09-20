@@ -16,105 +16,32 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     //表示するデータ(PostDataクラス)を配列で保持
     var postArray: [PostData] = []
-    //コメントを辞書配列で保持
-    var postDataComments: [[String: String]] = []
 
     //DatabaseのobserveEventの登録状態を表す
     var observingF = false
     
     //tableViewのセル数を返す
-    //２つのtableViewのプロトコルを兼ねているのでifで条件わけさせる
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if tableView === self.tableView{
-            //tableViewのセル数//
-            print("デバッグ：　tableViewのセル数を返します：\(postArray.count)件")
-            return postArray.count
-        }else{
-            //commentTableViewのセル数//
-            print("デバッグ：　commentTableViewのセル数を返します。コメント：\(postDataComments.count)件")
-            return postDataComments.count
-        }
+        print("デバッグ：　tableViewのセル数を返します：\(postArray.count)件")
+        
+        return postArray.count
     }
     
     //表示するセルの設定をする
-    //２つのtableViewのプロトコルを兼ねているのでifで条件わけさせる
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if tableView === self.tableView{
-            //tableViewセルの設定//
-            
-            print("デバッグ：　tableViewセルを設定します")
-            // PostTableViewCellで作成しているセルを取得してデータを設定する
-            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostTableViewCell
-            print("親セルのインデックスは \(indexPath.row)")
-            cell.setPostData(postArray[indexPath.row])  //セルの中身を作成
+        print("デバッグ：　tableViewセルを設定します")
+        // PostTableViewCellで作成しているセルを取得してデータを設定する
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostTableViewCell
+        cell.setPostData(postArray[indexPath.row])  //セルの中身を作成
 
-            // いいねボタンのアクションをソースコードで設定する
-            cell.likeButton.addTarget(self, action:#selector(handleLikeButton(_:forEvent:)), for: .touchUpInside)
-            
-            //コメントボタンのアクションをソースコードで設定する
-            cell.commentButton.addTarget(self, action: #selector(handleCommentButton(_: forEvent:)), for: .touchUpInside)
-            
-            
-            
-            //*commentTableViewについての設定
-            //セル内のcommentTableViewのデリゲートを設定
-            cell.commentTableView.delegate = self
-            cell.commentTableView.dataSource = self
-            
-            //テーブルセルのタップを無効にする
-            cell.commentTableView.allowsSelection = false
-            
-            //テーブルビューの内容を取得
-            let nib = UINib(nibName: "CommentTableViewCell", bundle: nil)
-            cell.commentTableView.register(nib, forCellReuseIdentifier: "CommentCell")
-            
-            //コメント内容の取得
-            postDataComments = postArray[indexPath.row].comments
-            print("デバッグ：　コメントを取得")
-            
-            //コメント一覧の高さをコメント数によって調整する
-            var commentTableHeight = CGFloat(postDataComments.count * 50)
-            if commentTableHeight > 150 {
-                commentTableHeight = 150
-            }
-            cell.commentTableViewConstraintHeight.constant = commentTableHeight
-            cell.commentTableView.reloadData()
-            print("コメントをリロードします")
-            
-            return cell
-            
-        }else{
-            //commentTableViewセルの設定//
-            print("デバッグ：　commentTableViewセルを設定します")
-            // セルを取得してデータを設定する
-            let cell = tableView.dequeueReusableCell(withIdentifier: "CommentCell", for: indexPath) as! CommentTableViewCell
-            print("デバッグ：　setPostCellData()します")
-            print("コメントのインデックスは \(indexPath.row)")
-            
-            var indexPathRow = indexPath.row
-            
-            print("postArrayは\(postArray)")
-            print("postDataCommentsは\(postDataComments)")
-            
-            /*
-            if indexPathRow < 0 {
-                indexPathRow = 0
-            }else if indexPathRow > postDataComments.count {
-                indexPathRow = postDataComments.count
-            }
-            */
-            
-            cell.setPostCellData(postDataComments[indexPathRow])   //子をスクロールすると止まる
-            //Index out of range: スクロールがindex外に行ってしまっている？
-            //→indexPathが親のデータ？→ではなさそう
-            //*スクロール時にpostDataCommentsが空っぽ→代入を適切に行う
-            return cell
-        }
+        // いいねボタンのアクションをソースコードで設定する
+        cell.likeButton.addTarget(self, action:#selector(handleLikeButton(_:forEvent:)), for: .touchUpInside)
+        
+        //コメントボタンのアクションをソースコードで設定する
+        cell.commentButton.addTarget(self, action: #selector(handleCommentButton(_: forEvent:)), for: .touchUpInside)
+        
+        return cell
     }
-    
-    /*func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print("スクロールされました")
-    }*/
     
     //コメントボタンがタップされた時に呼ばれるメソッド
     @objc func handleCommentButton(_ sender: UIButton, forEvent event: UIEvent){
@@ -134,7 +61,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
             //*コメント内容を取得する
             //タップされたボタンのセルのインデックスからCellを取り出す
             if let cell = tableView.cellForRow(at: indexPath!) as? PostTableViewCell{
-                if let commentKari = cell.commentLabel.text {
+                if let commentKari = cell.commentField.text {
                     if commentKari != ""{
                         print("デバッグ：　コメントが入力されています")
                         let comment = commentKari
@@ -158,11 +85,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
                     }
                 }
                 //入力欄をデフォルトに戻す
-                cell.commentLabel.text = ""
-                cell.commentLabel.placeholder = "コメントを追加"
+                cell.commentField.text = ""
+                cell.commentField.placeholder = "コメントを追加"
             }
 
- 
         }
     }
     

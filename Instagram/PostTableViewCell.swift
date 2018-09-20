@@ -16,11 +16,7 @@ class PostTableViewCell: UITableViewCell {
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var captionLabel: UILabel!
     @IBOutlet weak var commentButton: UIButton!
-    @IBOutlet weak var commentTableView: UITableView!
-    
-    @IBOutlet weak var commentLabel: UITextField!
-    
-    @IBOutlet weak var commentTableViewConstraintHeight: NSLayoutConstraint!
+    @IBOutlet weak var commentField: UITextField!
     
     
     override func awakeFromNib() {
@@ -65,9 +61,11 @@ class PostTableViewCell: UITableViewCell {
             self.likeButton.setImage(buttonImage, for: .normal)
         }
         
+        //コメント
+        print(postData.comments)
+        
     }
-  
-    
+
     
 }
 
