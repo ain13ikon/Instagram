@@ -36,14 +36,16 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
 
     //セクションに表示するセル数を返す
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print("■メソッド： numberOfRowsInSection")
         print("デバッグ：　写真セル\(section)：コメント数\( postArray[section].comments.count)")
-        print("デバッグ：　\(postArray[section].comments.count + 1)個しますのセルを作成")
+        print("デバッグ：　\(postArray[section].comments.count + 1)個のセルを作成します")
         return postArray[section].comments.count + 1
             //コメント数＋１（写真セル）
     }
     
     //表示するセルの設定をする
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        print("■メソッド：　cellForRowAt")
         //indexPath.sectionでセクションの番数
         //indexPath.rowでセルの番数   を得られる
         
@@ -51,7 +53,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         if indexPath.row == 0 {
             //写真セルを作成
             print("デバッグ：　写真セルを作成します")
-            print("デバッグ：　写真セル\(indexPath.section)個目")
+            print("デバッグ：　写真セル\(indexPath.section)番目")
             // PostTableViewCellで作成しているセルを取得してデータを設定する
             let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostTableViewCell
             cell.setPostData(postArray[indexPath.section])  //セルの中身を作成
@@ -69,11 +71,12 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         }else{
             //コメントセルを作成
             print("デバッグ：　コメントセルを設定します")
-            print("デバッグ：　\(indexPath.row - 1)個目のコメントをセルを作成します")
+            print("デバッグ：　写真セル\(indexPath.section)への\(indexPath.row - 1)番目のコメントをセルを作成します")
             // CommentCellで作成しているセルを取得してデータを設定する
             let cell = tableView.dequeueReusableCell(withIdentifier: "Cell2", for: indexPath) as! CommentCell
             cell.setComment(postArray[indexPath.section].comments[indexPath.row - 1])
-                //コメントセルの中身を作成 初めのセルは写真なのでindexPathから-1する
+                //コメントセルの中身を作成
+                //初めのインデックスは写真セルなので、配列の序数としてはindexPathから-1する必要がある
             
             return cell
         }
