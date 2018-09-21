@@ -13,6 +13,13 @@ import FirebaseDatabase
 
 class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var tableView: UITableView!
+    //写真セルとコメントセルを区別するための変数
+    //問題：増加値が固定のためスクロールに対応できない。
+    //      コメントの追加にも対応できなさそう
+    var withCommentsNum = 0
+    var startNum = 0
+    var endNum = 0
+    var photoCellCount = 0
     
     //表示するデータ(PostDataクラス)を配列で保持
     var postArray: [PostData] = []
@@ -24,23 +31,57 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print("デバッグ：　tableViewのセル数を返します：\(postArray.count)件")
         
-        return postArray.count
+        var commentsNum = 0
+        
+        for postData in postArray {
+            commentsNum += postData.comments.count
+        }
+        print("コメント数は　\(commentsNum)")
+        return postArray.count + commentsNum
     }
     
     //表示するセルの設定をする
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print("デバッグ：　tableViewセルを設定します")
-        // PostTableViewCellで作成しているセルを取得してデータを設定する
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostTableViewCell
-        cell.setPostData(postArray[indexPath.row])  //セルの中身を作成
-
-        // いいねボタンのアクションをソースコードで設定する
-        cell.likeButton.addTarget(self, action:#selector(handleLikeButton(_:forEvent:)), for: .touchUpInside)
-        
-        //コメントボタンのアクションをソースコードで設定する
-        cell.commentButton.addTarget(self, action: #selector(handleCommentButton(_: forEvent:)), for: .touchUpInside)
-        
-        return cell
+        //let check = postArray[indexPath.row].comments.count
+        //ifで条件わけ
+        print("\(indexPath.row)番目")
+        if indexPath.row > startNum && indexPath.row < endNum {
+            //コメントセルを作る場合
+            print("デバッグ：　コメントセルを設定します")
+            // CommentCellで作成しているセルを取得してデータを設定する
+            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell2", for: indexPath) as! CommentCell
+            //let cell = tableView.dequeueReusableCell(withIdentifier: "Cell2", for: indexPath) as! CommentCell
+            let value = indexPath.row - startNum - 1
+            print(value)
+            cell.setComment(commentDic: postArray[startNum].comments[value])  //セルの中身を作成
+            
+            return cell
+            
+        }else{
+            //写真セルを作る場合
+            print("デバッグ：　写真セルを設定します")
+            print("デバッグ：　写真セル\(photoCellCount)個目")
+            // PostTableViewCellで作成しているセルを取得してデータを設定する
+            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! PostTableViewCell
+            cell.setPostData(postArray[photoCellCount])  //セルの中身を作成
+            
+            // いいねボタンのアクションをソースコードで設定する
+            cell.likeButton.addTarget(self, action:#selector(handleLikeButton(_:forEvent:)), for: .touchUpInside)
+            
+            //コメントボタンのアクションをソースコードで設定する
+            cell.commentButton.addTarget(self, action: #selector(handleCommentButton(_: forEvent:)), for: .touchUpInside)
+            
+            withCommentsNum = postArray[photoCellCount].comments.count
+            print("この投稿に対するコメントは\(withCommentsNum)件")
+            
+            self.startNum = indexPath.row
+            self.endNum = self.withCommentsNum + 1
+            photoCellCount += 1
+            
+            print("\(self.startNum)~\(self.endNum)")
+            
+            return cell
+        }
     }
     
     //コメントボタンがタップされた時に呼ばれるメソッド
@@ -146,6 +187,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         let nib = UINib(nibName: "PostTableViewCell", bundle: nil)
         tableView.register(nib, forCellReuseIdentifier: "Cell")
         
+        //テーブルビューの内容を取得
+        let nib2 = UINib(nibName: "CommentCell", bundle: nil)
+        tableView.register(nib2, forCellReuseIdentifier: "Cell2")
+
         // テーブル行の高さをAutoLayoutで自動調整する
         tableView.rowHeight = UITableViewAutomaticDimension
         // テーブル行の高さの概算値を設定しておく

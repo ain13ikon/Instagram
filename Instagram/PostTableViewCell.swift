@@ -62,7 +62,7 @@ class PostTableViewCell: UITableViewCell {
         }
         
         //コメント
-        print(postData.comments)
+        //print(postData.comments)
         
     }
 
