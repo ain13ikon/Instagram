@@ -12,7 +12,7 @@ class CommentCell: UITableViewCell {
 
     @IBOutlet weak var commentLabel: UILabel!
     
-    func setComment(commentDic: [String: String]){
+    func setComment(_ commentDic: [String: String]){
         let comment = commentDic["comment"]!
         let commenter = commentDic["commenter"]!
         commentLabel.text = comment + "\t（from:" + commenter + "）"
